@@ -1,0 +1,31 @@
+#include <LiquidCrystal.h>//libreria LCD
+
+// Crear el objeto LCD con los pines correspondientes
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+  // Inicializar la pantalla LCD con 16 columnas y 2 filas
+  lcd.begin(16, 2);
+
+  // Encender la retroiluminación
+  lcd.clear();
+
+  // Mostrar un mensaje inicial
+  lcd.print("Hola Mundo!");
+  
+  // Inicializar el puerto serial para ver los datos en el monitor serial
+  Serial.begin(9600);
+}
+
+void loop() {
+    // Leer la señal en el pin A0
+    int valorSenal = analogRead(A0);
+    
+    // Convertir el valor a voltaje real (centro en 2.5V)
+    float voltajeSenal = (valorSenal - 512)// * (5.0 / 1023.0);  // Referencia de 5V
+    
+    // Mostrar el valor de voltaje en el Monitor Serial
+    Serial.println( String(voltajeSenal, 3));
+    
+    delay(100);  // Intervalo entre lecturas
+}

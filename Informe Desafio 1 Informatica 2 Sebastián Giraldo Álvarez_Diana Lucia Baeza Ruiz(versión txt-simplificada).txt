@@ -1,4 +1,0 @@
-﻿Informe Desafio #1
-9/09/2024
-Este día se recibió el documento que contiene el desafío, ya lo lei, y el primer objetivo que tengo es contextualizarse con algunos detalles que son solicitados y 
-los desconozco, como la librería que se recomienda Adafruit LiquidCrystal.h, y también como implementar en el sistema un código que capture lo requerido.
