@@ -1,31 +1,75 @@
-#include <LiquidCrystal.h>//libreria LCD
+#include <LiquidCrystal.h>
 
 // Crear el objeto LCD con los pines correspondientes
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
+//Pines de los punsadores
+const int pulsador1 = 6; //Iniciar
+const int pulsador2 = 7; //Detener
+//Estado de los pulsadores
+int estadoPulsador1 = LOW;
+int estadoPulsador2 = LOW;
+
+// Control de adquisición de datos
+bool adquiriendoDatos = false; // Estado de adquisición
+bool ImprimirDatos=false;// Para imprimir datos
+int tamArreglo = 2; // Tamaño inicial de arreglo, necesario para despues redimensionar
+float* Valores = new float [tamArreglo]; // Puntero al arreglo dinámico
+int cantidadElementos=0;//La cantidad de elementos ingresados en la variable
+
+float calcularAmplitud(float* Valores, int tamaño);
+
 void setup() {
-  // Inicializar la pantalla LCD con 16 columnas y 2 filas
+  // Inicializar la pantalla LCD con 16x2
   lcd.begin(16, 2);
-
-  // Encender la retroiluminación
-  lcd.clear();
-
-  // Mostrar un mensaje inicial
-  lcd.print("Hola Mundo!");
+  lcd.clear();// Encender la retroiluminación
+  Serial.println("Sistema listo. Presione el pulsador 1 para iniciar la adquisicion.");// Mostrar un mensaje inicial
   
   // Inicializar el puerto serial para ver los datos en el monitor serial
   Serial.begin(9600);
+  
+  // Configurar los pulsadores como entradas
+  pinMode(pulsador1, INPUT);
+  pinMode(pulsador2, INPUT);
 }
 
 void loop() {
-    // Leer la señal en el pin A0
-    int valorSenal = analogRead(A0);
-    
-    // Convertir el valor a voltaje real (centro en 2.5V)
-    float voltajeSenal = (valorSenal - 512)// * (5.0 / 1023.0);  // Referencia de 5V
-    
-    // Mostrar el valor de voltaje en el Monitor Serial
-    Serial.println( String(voltajeSenal, 3));
-    
-    delay(100);  // Intervalo entre lecturas
-}
+  //Generar los valores de la señal
+  int valorSenal = analogRead(A0); // Lee la señal en el pin A0
+  float voltajeSenal = (valorSenal - 512) * (5.0 / 1023.0);  // Asumiendo que la referencia es de 5V
+  //Iniciar adquisición
+  if (estadoPulsador1 == HIGH && adquiriendoDatos==false){
+    Serial.println("Iniciando la adquisicion de datos...");
+    adquiriendoDatos = true; 
+  }
+  Serial.println(voltajeSenal); // Mostrar el valor en el monitor serial
+  //Pulsadores
+  estadoPulsador1 = digitalRead(pulsador1);
+  estadoPulsador2 = digitalRead(pulsador2);
+  if(adquiriendoDatos==true){
+   	if(tamArreglo==cantidadElementos){
+  		int nuevotamano=tamArreglo+1;//Definicion nuevo tamaño del puntero
+      	float* nuevoarreglo_Valores = new float[nuevotamano];//Definicion de nuevo arreglo y asignación del nuevo tamaño
+      	for(int i=0;i<tamArreglo;i++){//Ciclo para pasar los valores de un puntero a otro
+      		nuevoarreglo_Valores[i]=Valores[i];
+        }
+      	delete[]Valores;//se quita la reserva de memoria del viejo arreglo 
+  		Valores = nuevoarreglo_Valores; //Asignación nombre de variable antigua al nuevo puntero
+    	tamArreglo=nuevotamano;//Asignación del nuevo tamaño
+    }
+  	Valores[cantidadElementos]=voltajeSenal;//
+  	cantidadElementos++;
+  }
+  //Detener adquisición
+  if(estadoPulsador2 == HIGH && adquiriendoDatos==true){
+    Serial.println("Deteniendo la adquisicion...");
+    adquiriendoDatos = false;
+  }
+  //Mostrar datos obtenidos
+  if(estadoPulsador2 == HIGH){//Cuando se presiona el segundo pulsador se muestra instantaneamente los datos recolectados
+    Serial.println("Estos son los valores que se recolectaron ");
+    for(int i=0;i<tamArreglo;i++){
+    	Serial.println(Valores[i]);
+    }
+    Serial.println("Fin de muestreo de datos ");
+  }
