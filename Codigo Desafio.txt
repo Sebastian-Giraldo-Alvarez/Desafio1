@@ -9,6 +9,7 @@ const int pulsador2 = 7; //Detener
 //Estado de los pulsadores
 int estadoPulsador1 = LOW;
 int estadoPulsador2 = LOW;
+int n = 0;
 
 // Control de adquisición de datos
 bool adquiriendoDatos = false; // Estado de adquisición
@@ -17,13 +18,14 @@ int tamArreglo = 2; // Tamaño inicial de arreglo, necesario para despues redime
 float* Valores = new float [tamArreglo]; // Puntero al arreglo dinámico
 int cantidadElementos=0;//La cantidad de elementos ingresados en la variable
 
-float calcularAmplitud(float* Valores, int tamaño);
+//Variables para almacenar informacion de la señal
+float amplitud;
 
 void setup() {
   // Inicializar la pantalla LCD con 16x2
   lcd.begin(16, 2);
   lcd.clear();// Encender la retroiluminación
-  Serial.println("Sistema listo. Presione el pulsador 1 para iniciar la adquisicion.");// Mostrar un mensaje inicial
+  lcd.println("Sistema listo.");// Mostrar un mensaje inicial
   
   // Inicializar el puerto serial para ver los datos en el monitor serial
   Serial.begin(9600);
@@ -72,4 +74,29 @@ void loop() {
     	Serial.println(Valores[i]);
     }
     Serial.println("Fin de muestreo de datos ");
+    n = 1;
   }
+  if (n==1){ //Para calcular la amplitud
+    
+    amplitud = calcularAmplitud(Valores, cantidadElementos);
+    Serial.print("La amplitud de la señal es: ");
+    Serial.println(amplitud);
+    n =0;
+  }
+}
+float calcularAmplitud(float *arr, int nelementos){
+  float valorMax = arr[0];
+  float valorMin = arr[0];
+  
+  //Encontrar el valor maximo y minimo en el arreglo
+  for (int i=1; i<nelementos; i++){
+    if(arr[i] > valorMax){
+      valorMax = arr[i];
+    }
+    if(arr[i] <valorMin){
+      valorMin = arr[i];
+    }
+  }
+  //Calcular amplitud
+  return (valorMax-valorMin) / 2;
+}
