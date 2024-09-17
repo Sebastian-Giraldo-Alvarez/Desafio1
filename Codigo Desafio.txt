@@ -1,8 +1,11 @@
 #include <LiquidCrystal.h>
-
+int ultimoValor = 0;        
+int signalValue = 0; 
+long ultimoTiempo = 0;
+long periodo= 0;
+float frecuencia = 0;
 // Crear el objeto LCD con los pines correspondientes
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
-
 //Pines de los punsadores
 const int pulsador1 = 6; //Iniciar
 const int pulsador2 = 7; //Detener
@@ -38,6 +41,19 @@ void setup() {
 void loop() {
   //Generar los valores de la señal
   int valorSenal = analogRead(A0); // Lee la señal en el pin A0
+  //Calcular la frecuencia   
+  if (valorSenal > 512 && ultimoValor <= 512) {
+      long tiempoActual = millis();  // Obtiene el tiempo actual
+      periodo = tiempoActual - ultimoTiempo;       // Calcula el período
+      ultimoTiempo = tiempoActual;                // Actualiza el último tiempo
+
+      // Calcula la frecuencia (en Hz)
+      if (periodo > 0) {//para no dividir entre 0
+        frecuencia = 1000.0 / periodo;  // Convertir milisegundos a segundos
+      }
+    }
+
+    ultimoValor = valorSenal;  // Actualiza el valor anterior
   float voltajeSenal = (valorSenal - 512) * (5.0 / 1023.0);  // Asumiendo que la referencia es de 5V
   //Iniciar adquisición
   if (estadoPulsador1 == HIGH && adquiriendoDatos==false){
@@ -77,17 +93,19 @@ void loop() {
     n = 1;
   }
   if (n==1){ //Para calcular la amplitud
-    
+    Serial.print("Frecuencia: ");
+    Serial.print(frecuencia);
+    Serial.println(" Hz");
     amplitud = calcularAmplitud(Valores, cantidadElementos);
     Serial.print("La amplitud de la señal es: ");
     Serial.println(amplitud);
     n =0;
   }
 }
+
 float calcularAmplitud(float *arr, int nelementos){
   float valorMax = arr[0];
   float valorMin = arr[0];
-  
   //Encontrar el valor maximo y minimo en el arreglo
   for (int i=1; i<nelementos; i++){
     if(arr[i] > valorMax){
