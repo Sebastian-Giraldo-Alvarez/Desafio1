@@ -97,7 +97,10 @@ void loop() {
     Serial.print("Frecuencia: ");
     Serial.print(frecuencia);
     Serial.println(" Hz");
+<<<<<<< HEAD:Codigo del desafio.ino
     
+=======
+>>>>>>> eab466555942797f6f344a2b9d4c4354892d7520:Codigo Desafio.txt
     amplitud = calcularAmplitud(Valores, cantidadElementos);
     Serial.print("La amplitud de la señal es: ");
     Serial.println(amplitud);
@@ -197,5 +200,4 @@ void mostrarDatos(float frecuencia, float amplitud, const char* formadeOnda){
     }
   }
 }
-      
       
